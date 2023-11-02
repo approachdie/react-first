@@ -1,41 +1,51 @@
-import React from 'react';
-import Navbar from "./components/UI/Navbar/Navbar";
+import React, {useContext} from 'react';
+import Navbar from "./UI/Navbar/Navbar";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
-import About from "./pages/About";
-import Posts from "./pages/Posts";
-import Error from "./pages/Error";
-import PostIdPage from "./pages/PostIdPage";
+import {publicRoutes, privateRoutes} from "../router";
+import {AuthContext} from "../context";
+import Loader from "./UI/Loader/Loader";
 
 const AppRouter = () => {
+    const {isAuth, isLoading} = useContext(AuthContext)
+    console.log(isAuth)
+
+    if (isLoading) {
+        return <Loader/>
+    }
     return (
-            <BrowserRouter>
-                <Navbar/>
+        isAuth
+            ?
                 <Routes>
-                    <Route
-                        path="/about"
-                        element={<About/>}
-                    />
-                    <Route
-                        exact
-                        path="/posts"
-                        element={<Posts/>}
-                    />
-                    <Route
-                        exact
-                        path='/posts/:id'
-                        element={<PostIdPage/>}
-                    />
-                    <Route
-                        path='/error'
-                        element={<Error/>}
-                    />
+                    {privateRoutes.map((route, index) =>
+                        <Route
+                            key={route.path}
+                            element={<route.component/>}
+                            path={route.path}
+                            exact={route.exact}
+                        />
+                    )}
                     <Route
                         path="/*"
                         element={<Navigate to="/posts"
                         />}
                     />
                 </Routes>
-            </BrowserRouter>
+            :
+                <Routes>
+                    {publicRoutes.map((route, index) =>
+                        <Route
+                            key={route.path}
+                            element={<route.component/>}
+                            path={route.path}
+                            exact={route.exact}
+                        />
+                    )}
+                    <Route
+                        path="/*"
+                        element={<Navigate to="/login"
+                        />}
+                    />
+                </Routes>
     );
 };
 
